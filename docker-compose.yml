@@ -23,6 +23,21 @@ services:
       retries: 3
       start_period: 20s
 
+  frontend:
+    build:
+      context: ./paraguay-wares
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      easypanel:
+        aliases:
+          - estoque_paraguay_frontend
+
 networks:
   easypanel:
     external: true

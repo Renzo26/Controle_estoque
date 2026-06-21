@@ -103,8 +103,21 @@ VITE_API_URL=http://localhost:8000/api
 - **Ajuste:** sobrescreve `quantidade_atual` com o valor informado.
 - Tudo dentro de transação com `SELECT ... FOR UPDATE` para evitar race conditions.
 
-## Deploy (EasyPanel)
+## Deploy (EasyPanel + Docker Compose)
 
-`docker-compose.yml` na raiz publica o backend na rede `easypanel`. Variáveis de ambiente são configuradas no painel; migrações rodam automaticamente no startup do container.
+O `docker-compose.yml` na raiz publica **dois serviços** na rede Docker externa `easypanel`:
 
-Frontend pode ser publicado como serviço separado fazendo build com `VITE_API_URL` apontando para o domínio do backend.
+- **`backend`** — FastAPI na porta `8080`; roda as migrações Alembic automaticamente no startup; tem healthcheck em `/health`. Alias interno: `estoque_paraguay_backend`.
+- **`frontend`** — build SPA do React (via `vite.config.docker.ts`) servido por **Nginx** na porta `80`; sobe após o backend ficar saudável. Alias interno: `estoque_paraguay_frontend`.
+
+### Passos
+
+1. Configure as variáveis de ambiente no painel do EasyPanel (ver [`.env.example`](.env.example)):
+   - Backend: `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET`, `CORS_ORIGINS`.
+   - Frontend (build-time): `VITE_API_URL` apontando para o domínio público do backend, com sufixo `/api`.
+2. Suba a stack:
+   ```bash
+   docker compose up --build
+   ```
+   `VITE_API_URL` é injetado no build do frontend como `build-arg`; as migrações do banco rodam sozinhas no start do backend.
+3. No EasyPanel, exponha o domínio do frontend (porta 80) e o do backend (porta 8080), e garanta que `CORS_ORIGINS` inclua o domínio do frontend.
