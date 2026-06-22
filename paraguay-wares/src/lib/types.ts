@@ -55,5 +55,11 @@ export interface VendasPeriodo {
   itens: VendaPeriodoItem[];
 }
 
+export interface Categoria {
+  id: string;
+  nome: string;
+  criado_em: string;
+}
+
 export const valorTotalEstoque = (p: Produto) => p.quantidade_atual * p.custo_medio;
 export const estoqueBaixo = (p: Produto) => p.quantidade_atual <= p.estoque_minimo;

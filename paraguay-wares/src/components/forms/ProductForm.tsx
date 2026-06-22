@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FormShell, Field } from "./FormShell";
+import { CategoriaSelect } from "./CategoriaSelect";
 
 export function ProductForm({ onDone }: { onDone: () => void }) {
   const criar = useCriarProduto();
@@ -50,9 +51,7 @@ export function ProductForm({ onDone }: { onDone: () => void }) {
       <Field label="Nome do produto">
         <Input className="h-12" value={f.nome} onChange={upd("nome")} placeholder="Ex: Perfume Importado" />
       </Field>
-      <Field label="Categoria">
-        <Input className="h-12" value={f.categoria} onChange={upd("categoria")} placeholder="Ex: Perfumes" />
-      </Field>
+      <CategoriaSelect value={f.categoria} onChange={(v) => setF({ ...f, categoria: v })} />
       <Field label="Descrição" hint="Opcional">
         <Textarea value={f.descricao} onChange={upd("descricao")} placeholder="Detalhes do produto" />
       </Field>

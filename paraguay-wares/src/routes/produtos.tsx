@@ -17,6 +17,7 @@ import {
 import { ProductForm } from "@/components/forms/ProductForm";
 import { EntradaForm } from "@/components/forms/EntradaForm";
 import { SaidaForm } from "@/components/forms/SaidaForm";
+import { CategoriaSelect } from "@/components/forms/CategoriaSelect";
 
 export const Route = createFileRoute("/produtos")({
   head: () => ({ meta: [
@@ -148,8 +149,7 @@ function EditProduto({ id, onDone }: { id: string; onDone: () => void }) {
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
         <label className="block"><span className="text-sm font-medium block mb-1.5">Nome</span>
           <Input className="h-12" value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} /></label>
-        <label className="block"><span className="text-sm font-medium block mb-1.5">Categoria</span>
-          <Input className="h-12" value={f.categoria} onChange={(e) => setF({ ...f, categoria: e.target.value })} /></label>
+        <CategoriaSelect value={f.categoria} onChange={(v) => setF({ ...f, categoria: v })} />
         <label className="block"><span className="text-sm font-medium block mb-1.5">SKU</span>
           <Input className="h-12" value={f.sku ?? ""} onChange={(e) => setF({ ...f, sku: e.target.value })} /></label>
         <label className="block"><span className="text-sm font-medium block mb-1.5">Estoque mínimo</span>

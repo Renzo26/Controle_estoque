@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.api import produtos, movimentacoes, relatorios, upload
+from app.api import produtos, movimentacoes, relatorios, upload, categorias
 
 settings = get_settings()
 
@@ -27,6 +27,7 @@ app.include_router(produtos.router, prefix="/api")
 app.include_router(movimentacoes.router, prefix="/api")
 app.include_router(relatorios.router, prefix="/api")
 app.include_router(upload.router, prefix="/api")
+app.include_router(categorias.router, prefix="/api")
 
 
 @app.get("/health")

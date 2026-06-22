@@ -4,6 +4,7 @@ import type {
   TipoMovimentacao,
   Dashboard,
   VendasPeriodo,
+  Categoria,
 } from "./types";
 
 const BASE_URL =
@@ -167,6 +168,12 @@ export const api = {
       })),
     };
   },
+
+  // Categorias
+  listarCategorias: () => request<Categoria[]>("/categorias"),
+  criarCategoria: (nome: string) =>
+    request<Categoria>("/categorias", { method: "POST", body: JSON.stringify({ nome }) }),
+  removerCategoria: (id: string) => request<void>(`/categorias/${id}`, { method: "DELETE" }),
 
   // Upload
   uploadFotoProduto: async (id: string, file: File) => {

@@ -12,7 +12,7 @@ from alembic import context
 
 from app.core.config import get_settings
 from app.core.database import Base
-from app.models import Produto, Movimentacao  # noqa: F401 — registra metadata
+from app.models import Produto, Movimentacao, Categoria  # noqa: F401 — registra metadata
 
 config = context.config
 

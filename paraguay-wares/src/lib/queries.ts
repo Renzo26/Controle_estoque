@@ -9,6 +9,7 @@ export const qk = {
   dashboard: () => ["dashboard"] as const,
   estoqueBaixo: () => ["estoque-baixo"] as const,
   vendasPeriodo: (de?: string, ate?: string) => ["vendas-periodo", de, ate] as const,
+  categorias: () => ["categorias"] as const,
 };
 
 // ---------- Produtos ----------
@@ -58,6 +59,31 @@ export function useRemoverProduto() {
   return useMutation({
     mutationFn: (id: string) => api.removerProduto(id),
     onSuccess: () => invalidateAll(qc),
+  });
+}
+
+// ---------- Categorias ----------
+
+export function useCategorias() {
+  return useQuery({
+    queryKey: qk.categorias(),
+    queryFn: api.listarCategorias,
+  });
+}
+
+export function useCriarCategoria() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (nome: string) => api.criarCategoria(nome),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["categorias"] }),
+  });
+}
+
+export function useRemoverCategoria() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.removerCategoria(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["categorias"] }),
   });
 }
 
