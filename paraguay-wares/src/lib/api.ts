@@ -5,6 +5,7 @@ import type {
   Dashboard,
   VendasPeriodo,
   Categoria,
+  LucroPeriodo,
 } from "./types";
 
 const BASE_URL =
@@ -165,6 +166,25 @@ export const api = {
         data: i.data,
         quantidade_total: Number(i.quantidade_total ?? 0),
         valor_total: num(i.valor_total),
+      })),
+    };
+  },
+
+  // Relatório de lucro (investido x vendas)
+  lucroPeriodo: async (params?: { de?: string; ate?: string; produto_id?: string }): Promise<LucroPeriodo> => {
+    const d = await request<any>("/relatorios/lucro", { query: params });
+    return {
+      de: d.de ?? null,
+      ate: d.ate ?? null,
+      produto_id: d.produto_id ?? null,
+      investido_total: num(d.investido_total),
+      vendas_total: num(d.vendas_total),
+      lucro_total: num(d.lucro_total),
+      itens: (d.itens ?? []).map((i: any) => ({
+        mes: i.mes,
+        investido: num(i.investido),
+        vendas: num(i.vendas),
+        lucro: num(i.lucro),
       })),
     };
   },

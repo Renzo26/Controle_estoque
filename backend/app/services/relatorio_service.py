@@ -1,13 +1,20 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Optional
 
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.movimentacao import Movimentacao, TipoMovimentacao
 from app.models.produto import Produto
-from app.schemas.relatorio import DashboardOut, VendaPeriodoItem, VendasPeriodoOut
+from app.schemas.relatorio import (
+    DashboardOut,
+    LucroPeriodoItem,
+    LucroPeriodoOut,
+    VendaPeriodoItem,
+    VendasPeriodoOut,
+)
 
 
 class RelatorioService:
@@ -105,6 +112,80 @@ class RelatorioService:
             ate=ate,
             quantidade_total=sum(i.quantidade_total for i in itens),
             valor_total=sum((i.valor_total for i in itens), Decimal("0")),
+            itens=itens,
+        )
+
+    async def lucro_periodo(
+        self,
+        db: AsyncSession,
+        de: Optional[datetime] = None,
+        ate: Optional[datetime] = None,
+        produto_id: Optional[uuid.UUID] = None,
+    ) -> LucroPeriodoOut:
+        if not ate:
+            ate = datetime.now(timezone.utc)
+        if not de:
+            # padrão: últimos 12 meses
+            de = ate - timedelta(days=365)
+
+        mes = func.date_trunc("month", Movimentacao.data_movimentacao)
+        investido = func.coalesce(
+            func.sum(
+                case(
+                    (Movimentacao.tipo == TipoMovimentacao.entrada, Movimentacao.valor_total),
+                    else_=0,
+                )
+            ),
+            0,
+        )
+        vendas = func.coalesce(
+            func.sum(
+                case(
+                    (Movimentacao.tipo == TipoMovimentacao.venda, Movimentacao.valor_total),
+                    else_=0,
+                )
+            ),
+            0,
+        )
+
+        stmt = (
+            select(
+                mes.label("mes"),
+                investido.label("investido"),
+                vendas.label("vendas"),
+            )
+            .where(
+                Movimentacao.tipo.in_(
+                    [TipoMovimentacao.entrada, TipoMovimentacao.venda]
+                ),
+                Movimentacao.data_movimentacao >= de,
+                Movimentacao.data_movimentacao <= ate,
+            )
+            .group_by(mes)
+            .order_by(mes.asc())
+        )
+        if produto_id:
+            stmt = stmt.where(Movimentacao.produto_id == produto_id)
+
+        rows = (await db.execute(stmt)).all()
+
+        itens: list[LucroPeriodoItem] = []
+        for r in rows:
+            inv = Decimal(r.investido or 0)
+            ven = Decimal(r.vendas or 0)
+            itens.append(
+                LucroPeriodoItem(mes=r.mes, investido=inv, vendas=ven, lucro=ven - inv)
+            )
+
+        investido_total = sum((i.investido for i in itens), Decimal("0"))
+        vendas_total = sum((i.vendas for i in itens), Decimal("0"))
+        return LucroPeriodoOut(
+            de=de,
+            ate=ate,
+            produto_id=produto_id,
+            investido_total=investido_total,
+            vendas_total=vendas_total,
+            lucro_total=vendas_total - investido_total,
             itens=itens,
         )
 

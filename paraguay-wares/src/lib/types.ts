@@ -61,5 +61,22 @@ export interface Categoria {
   criado_em: string;
 }
 
+export interface LucroPeriodoItem {
+  mes: string;
+  investido: number;
+  vendas: number;
+  lucro: number;
+}
+
+export interface LucroPeriodo {
+  de: string | null;
+  ate: string | null;
+  produto_id: string | null;
+  investido_total: number;
+  vendas_total: number;
+  lucro_total: number;
+  itens: LucroPeriodoItem[];
+}
+
 export const valorTotalEstoque = (p: Produto) => p.quantidade_atual * p.custo_medio;
 export const estoqueBaixo = (p: Produto) => p.quantidade_atual <= p.estoque_minimo;

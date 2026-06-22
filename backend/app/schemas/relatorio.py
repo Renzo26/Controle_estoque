@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
@@ -26,3 +27,20 @@ class VendasPeriodoOut(BaseModel):
     quantidade_total: int
     valor_total: Decimal
     itens: list[VendaPeriodoItem]
+
+
+class LucroPeriodoItem(BaseModel):
+    mes: datetime
+    investido: Decimal
+    vendas: Decimal
+    lucro: Decimal
+
+
+class LucroPeriodoOut(BaseModel):
+    de: Optional[datetime] = None
+    ate: Optional[datetime] = None
+    produto_id: Optional[uuid.UUID] = None
+    investido_total: Decimal
+    vendas_total: Decimal
+    lucro_total: Decimal
+    itens: list[LucroPeriodoItem]
