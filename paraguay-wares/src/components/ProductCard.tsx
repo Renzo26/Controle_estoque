@@ -1,4 +1,4 @@
-import { ArrowDownToLine, ArrowUpFromLine, Pencil } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Pencil, Trash2 } from "lucide-react";
 import type { Produto } from "@/lib/types";
 import { estoqueBaixo, valorTotalEstoque } from "@/lib/types";
 import { formatBRL } from "@/lib/store";
@@ -6,12 +6,13 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 export function ProductCard({
-  produto, onEntrada, onSaida, onEdit,
+  produto, onEntrada, onSaida, onEdit, onDelete,
 }: {
   produto: Produto;
   onEntrada: () => void;
   onSaida: () => void;
   onEdit: () => void;
+  onDelete: () => void;
 }) {
   const low = estoqueBaixo(produto);
   return (
@@ -21,9 +22,19 @@ export function ProductCard({
           <div className="font-display font-semibold text-base leading-tight truncate">{produto.nome}</div>
           <div className="text-xs text-muted-foreground mt-0.5">{produto.categoria}{produto.sku ? ` · ${produto.sku}` : ""}</div>
         </div>
-        <Badge variant={low ? "destructive" : "secondary"} className={cn(low ? "" : "bg-primary-soft text-primary border-transparent")}>
-          {low ? "Estoque baixo" : "Normal"}
-        </Badge>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Badge variant={low ? "destructive" : "secondary"} className={cn(low ? "" : "bg-primary-soft text-primary border-transparent")}>
+            {low ? "Estoque baixo" : "Normal"}
+          </Badge>
+          <button
+            onClick={onDelete}
+            aria-label={`Excluir ${produto.nome}`}
+            title="Excluir produto"
+            className="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive active:scale-95 transition"
+          >
+            <Trash2 className="size-4" />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-sm">

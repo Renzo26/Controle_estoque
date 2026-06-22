@@ -6,10 +6,14 @@ import { PageHeader } from "@/components/PageHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { formatBRL } from "@/lib/store";
 import { valorTotalEstoque } from "@/lib/types";
-import { useProdutos, useAtualizarProduto } from "@/lib/queries";
+import { useProdutos, useAtualizarProduto, useRemoverProduto } from "@/lib/queries";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ProductForm } from "@/components/forms/ProductForm";
 import { EntradaForm } from "@/components/forms/EntradaForm";
 import { SaidaForm } from "@/components/forms/SaidaForm";
@@ -25,7 +29,9 @@ export const Route = createFileRoute("/produtos")({
 function ProdutosPage() {
   const [q, setQ] = useState("");
   const { data: produtos = [], isLoading } = useProdutos({ q: q || undefined });
-  const [modal, setModal] = useState<null | { kind: "new" } | { kind: "entrada"; produtoId: string } | { kind: "saida"; produtoId: string } | { kind: "edit"; produtoId: string }>(null);
+  const [modal, setModal] = useState<null | { kind: "new" } | { kind: "entrada"; produtoId: string } | { kind: "saida"; produtoId: string } | { kind: "edit"; produtoId: string } | { kind: "delete"; produtoId: string }>(null);
+  const remover = useRemoverProduto();
+  const produtoExcluir = modal?.kind === "delete" ? produtos.find((p) => p.id === modal.produtoId) : undefined;
 
   return (
     <div className="px-4 lg:px-8 py-5 lg:py-8 max-w-7xl mx-auto w-full">
@@ -57,6 +63,7 @@ function ProdutosPage() {
             onEntrada={() => setModal({ kind: "entrada", produtoId: p.id })}
             onSaida={() => setModal({ kind: "saida", produtoId: p.id })}
             onEdit={() => setModal({ kind: "edit", produtoId: p.id })}
+            onDelete={() => setModal({ kind: "delete", produtoId: p.id })}
           />
         ))}
         {!isLoading && produtos.length === 0 && (
@@ -87,6 +94,38 @@ function ProdutosPage() {
           {modal?.kind === "edit" && <EditProduto id={modal.produtoId} onDone={() => setModal(null)} />}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={modal?.kind === "delete"} onOpenChange={(o) => !o && setModal(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir produto</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir <span className="font-medium text-foreground">{produtoExcluir?.nome}</span>?
+              Essa ação não pode ser desfeita e o histórico de movimentações do produto também será removido.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={remover.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={remover.isPending}
+              onClick={async (e) => {
+                e.preventDefault();
+                if (modal?.kind !== "delete") return;
+                try {
+                  await remover.mutateAsync(modal.produtoId);
+                  toast.success("Produto excluído!");
+                  setModal(null);
+                } catch (err: any) {
+                  toast.error(err.message ?? "Erro ao excluir.");
+                }
+              }}
+            >
+              {remover.isPending ? "Excluindo…" : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
