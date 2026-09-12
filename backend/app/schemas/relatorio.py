@@ -33,6 +33,7 @@ class LucroPeriodoItem(BaseModel):
     mes: datetime
     investido: Decimal
     vendas: Decimal
+    viagem: Decimal = Decimal("0")
     lucro: Decimal
 
 

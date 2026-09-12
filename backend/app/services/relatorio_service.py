@@ -175,33 +175,58 @@ class RelatorioService:
 
         rows = (await db.execute(stmt)).all()
 
-        itens: list[LucroPeriodoItem] = []
+        # Custos de viagem não pertencem a produto/categoria: só entram (e só
+        # reduzem o lucro) na visão geral, sem filtro de produto ou categoria.
+        viagem_por_mes: dict[tuple[int, int], Decimal] = {}
+        if not produto_id and not categoria:
+            custos = (
+                await db.execute(
+                    select(
+                        CustoViagem.data,
+                        CustoViagem.combustivel_passagem
+                        + CustoViagem.hospedagem
+                        + CustoViagem.alimentacao
+                        + CustoViagem.pedagio,
+                    ).where(CustoViagem.data >= de.date(), CustoViagem.data <= ate.date())
+                )
+            ).all()
+            for data, total in custos:
+                chave = (data.year, data.month)
+                viagem_por_mes[chave] = viagem_por_mes.get(chave, Decimal("0")) + Decimal(total or 0)
+
+        por_mes: dict[tuple[int, int], dict] = {}
         for r in rows:
-            inv = Decimal(r.investido or 0)
-            ven = Decimal(r.vendas or 0)
+            por_mes[(r.mes.year, r.mes.month)] = {
+                "mes": r.mes,
+                "investido": Decimal(r.investido or 0),
+                "vendas": Decimal(r.vendas or 0),
+            }
+        # Meses só com custo de viagem (sem compras/vendas) também aparecem
+        for chave in viagem_por_mes:
+            if chave not in por_mes:
+                por_mes[chave] = {
+                    "mes": datetime(chave[0], chave[1], 1, tzinfo=timezone.utc),
+                    "investido": Decimal("0"),
+                    "vendas": Decimal("0"),
+                }
+
+        itens: list[LucroPeriodoItem] = []
+        for chave in sorted(por_mes):
+            m = por_mes[chave]
+            via = viagem_por_mes.get(chave, Decimal("0"))
             itens.append(
-                LucroPeriodoItem(mes=r.mes, investido=inv, vendas=ven, lucro=ven - inv)
+                LucroPeriodoItem(
+                    mes=m["mes"],
+                    investido=m["investido"],
+                    vendas=m["vendas"],
+                    viagem=via,
+                    lucro=m["vendas"] - m["investido"] - via,
+                )
             )
 
         investido_total = sum((i.investido for i in itens), Decimal("0"))
         vendas_total = sum((i.vendas for i in itens), Decimal("0"))
-
-        # Custos de viagem não são por produto: soma todos os do período
-        custos_viagem_total = (
-            await db.scalar(
-                select(
-                    func.coalesce(
-                        func.sum(
-                            CustoViagem.combustivel_passagem
-                            + CustoViagem.hospedagem
-                            + CustoViagem.alimentacao
-                            + CustoViagem.pedagio
-                        ),
-                        0,
-                    )
-                ).where(CustoViagem.data >= de.date(), CustoViagem.data <= ate.date())
-            )
-        ) or Decimal("0")
+        custos_viagem_total = sum((i.viagem for i in itens), Decimal("0"))
         return LucroPeriodoOut(
             de=de,
             ate=ate,
@@ -209,8 +234,8 @@ class RelatorioService:
             categoria=categoria,
             investido_total=investido_total,
             vendas_total=vendas_total,
-            lucro_total=vendas_total - investido_total,
-            custos_viagem_total=Decimal(custos_viagem_total),
+            lucro_total=vendas_total - investido_total - custos_viagem_total,
+            custos_viagem_total=custos_viagem_total,
             itens=itens,
         )
 

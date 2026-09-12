@@ -205,6 +205,7 @@ export const api = {
         mes: i.mes,
         investido: num(i.investido),
         vendas: num(i.vendas),
+        viagem: num(i.viagem),
         lucro: num(i.lucro),
       })),
     };

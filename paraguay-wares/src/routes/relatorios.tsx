@@ -113,12 +113,16 @@ function LucroSection() {
   const { data, isLoading } = useLucroPeriodo(valido ? { de, ate, produto_id: produtoId, categoria } : undefined);
 
   const lucroTotal = data?.lucro_total ?? 0;
+  // Viagem não é de um produto/categoria: só entra na visão geral
+  const comFiltro = !!(produtoId || categoria);
+  const colunas = comFiltro ? "grid-cols-4" : "grid-cols-5";
 
   return (
     <section className="mt-6">
       <h2 className="font-display font-bold text-base mb-1">Investido × Vendas × Lucro</h2>
       <p className="text-xs text-muted-foreground mb-3">
-        Lucro = Vendas − Investido (compras/entradas) no período selecionado. Custos de viagem mostram o total gasto com viagens no período.
+        Lucro = Vendas − Investido (compras/entradas) − Custos de viagem, no período selecionado.
+        Com filtro de categoria ou produto, os custos de viagem não entram (não pertencem a um produto).
       </p>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
@@ -156,7 +160,11 @@ function LucroSection() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
         <TotalCard label="Investido" value={formatBRL(data?.investido_total ?? 0)} />
-        <TotalCard label="Custos de viagem" value={formatBRL(data?.custos_viagem_total ?? 0)} />
+        <TotalCard
+          label="Custos de viagem"
+          value={comFiltro ? "—" : formatBRL(data?.custos_viagem_total ?? 0)}
+          hint={comFiltro ? "Só na visão geral" : undefined}
+        />
         <TotalCard label="Vendas" value={formatBRL(data?.vendas_total ?? 0)} />
         <TotalCard
           label="Lucro"
@@ -165,10 +173,12 @@ function LucroSection() {
         />
       </div>
 
-      <div className="rounded-2xl border bg-card overflow-hidden">
-        <div className="grid grid-cols-4 gap-2 px-4 py-2.5 bg-muted/50 text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+      <div className="rounded-2xl border bg-card overflow-x-auto">
+        <div className={cn(!comFiltro && "min-w-[560px]")}>
+        <div className={cn("grid gap-2 px-4 py-2.5 bg-muted/50 text-[11px] uppercase tracking-wide text-muted-foreground font-medium", colunas)}>
           <span>Mês</span>
           <span className="text-right">Investido</span>
+          {!comFiltro && <span className="text-right">Viagem</span>}
           <span className="text-right">Vendas</span>
           <span className="text-right">Lucro</span>
         </div>
@@ -183,9 +193,10 @@ function LucroSection() {
             <div className="px-4 py-6 text-center text-sm text-muted-foreground">Sem movimentações no período.</div>
           )}
           {valido && data?.itens.map((it) => (
-            <div key={it.mes} className="grid grid-cols-4 gap-2 px-4 py-3 text-sm">
+            <div key={it.mes} className={cn("grid gap-2 px-4 py-3 text-sm", colunas)}>
               <span className="font-medium">{formatMes(it.mes)}</span>
               <span className="text-right text-muted-foreground">{formatBRL(it.investido)}</span>
+              {!comFiltro && <span className="text-right text-muted-foreground">{formatBRL(it.viagem)}</span>}
               <span className="text-right text-muted-foreground">{formatBRL(it.vendas)}</span>
               <span className={cn("text-right font-semibold",
                 it.lucro > 0 ? "text-primary" : it.lucro < 0 ? "text-destructive" : "text-foreground")}>
@@ -194,12 +205,13 @@ function LucroSection() {
             </div>
           ))}
         </div>
+        </div>
       </div>
     </section>
   );
 }
 
-function TotalCard({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "positive" | "negative" }) {
+function TotalCard({ label, value, hint, tone = "default" }: { label: string; value: string; hint?: string; tone?: "default" | "positive" | "negative" }) {
   return (
     <div className={cn("rounded-xl border p-3",
       tone === "positive" ? "bg-primary-soft border-transparent" : tone === "negative" ? "bg-destructive/10 border-transparent" : "bg-card")}>
@@ -212,6 +224,7 @@ function TotalCard({ label, value, tone = "default" }: { label: string; value: s
         tone === "positive" ? "text-primary" : tone === "negative" ? "text-destructive" : "text-foreground")}>
         {value}
       </div>
+      {hint && <div className="text-[10px] text-muted-foreground mt-0.5">{hint}</div>}
     </div>
   );
 }

@@ -63,6 +63,7 @@ export interface LucroPeriodoItem {
   mes: string;
   investido: number;
   vendas: number;
+  viagem: number;
   lucro: number;
 }
 
