@@ -12,7 +12,7 @@ export function ProductForm({ onDone }: { onDone: () => void }) {
   const criar = useCriarProduto();
   const [f, setF] = useState({
     nome: "", categoria: "", descricao: "", sku: "",
-    quantidade_inicial: "0", valor_unitario: "0", cotacao_dolar: "",
+    quantidade_inicial: "1", valor_unitario: "", cotacao_dolar: "",
     estoque_minimo: "1", fornecedor: "",
   });
   const upd = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -69,7 +69,7 @@ export function ProductForm({ onDone }: { onDone: () => void }) {
       </div>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Valor pago unitário (R$)">
-          <Input className="h-12" inputMode="decimal" value={f.valor_unitario} onChange={upd("valor_unitario")} />
+          <Input className="h-12" inputMode="decimal" value={f.valor_unitario} onChange={upd("valor_unitario")} placeholder="0,00" />
         </Field>
         <Field label="Cotação do dólar" hint="Opcional">
           <Input className="h-12" inputMode="decimal" value={f.cotacao_dolar} onChange={upd("cotacao_dolar")} placeholder="Ex: 5,20" />

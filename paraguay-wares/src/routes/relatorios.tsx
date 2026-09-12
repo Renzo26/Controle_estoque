@@ -105,7 +105,7 @@ function LucroSection() {
     <section className="mt-6">
       <h2 className="font-display font-bold text-base mb-1">Investido × Vendas × Lucro</h2>
       <p className="text-xs text-muted-foreground mb-3">
-        Lucro = Vendas − Investido (compras/entradas) no período selecionado.
+        Lucro = Vendas − Investido (compras/entradas) no período selecionado. Custos de viagem mostram o total gasto com viagens no período.
       </p>
 
       <div className="grid sm:grid-cols-3 gap-2 mb-3">
@@ -131,8 +131,9 @@ function LucroSection() {
         </label>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mb-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
         <TotalCard label="Investido" value={formatBRL(data?.investido_total ?? 0)} />
+        <TotalCard label="Custos de viagem" value={formatBRL(data?.custos_viagem_total ?? 0)} />
         <TotalCard label="Vendas" value={formatBRL(data?.vendas_total ?? 0)} />
         <TotalCard
           label="Lucro"

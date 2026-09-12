@@ -58,8 +58,10 @@ class ProdutoService:
             descricao=body.descricao,
             estoque_minimo=body.estoque_minimo,
             quantidade_atual=qtd,
-            custo_medio=valor if qtd > 0 else Decimal("0"),
-            ultimo_valor_pago=valor if qtd > 0 else Decimal("0"),
+            # Guarda o valor pago mesmo sem quantidade inicial; a 1ª entrada
+            # recalcula o custo médio (qtd 0 não pesa na média).
+            custo_medio=valor,
+            ultimo_valor_pago=valor,
         )
         db.add(produto)
 

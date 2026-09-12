@@ -75,7 +75,20 @@ export interface LucroPeriodo {
   investido_total: number;
   vendas_total: number;
   lucro_total: number;
+  custos_viagem_total: number;
   itens: LucroPeriodoItem[];
+}
+
+export interface CustoViagem {
+  id: string;
+  data: string; // "YYYY-MM-DD"
+  descricao?: string | null;
+  combustivel_passagem: number;
+  hospedagem: number;
+  alimentacao: number;
+  pedagio: number;
+  total: number;
+  criado_em: string;
 }
 
 export const valorTotalEstoque = (p: Produto) => p.quantidade_atual * p.custo_medio;

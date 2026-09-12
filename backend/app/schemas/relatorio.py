@@ -43,4 +43,5 @@ class LucroPeriodoOut(BaseModel):
     investido_total: Decimal
     vendas_total: Decimal
     lucro_total: Decimal
+    custos_viagem_total: Decimal = Decimal("0")
     itens: list[LucroPeriodoItem]

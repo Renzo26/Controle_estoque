@@ -4,8 +4,8 @@ import { useProdutos, useRegistrarMovimentacao } from "@/lib/queries";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormShell, Field } from "./FormShell";
+import { ProdutoSelect } from "./ProdutoSelect";
 import { parseDecimal } from "@/lib/utils";
 
 export function EntradaForm({ onDone, produtoId }: { onDone: () => void; produtoId?: string }) {
@@ -51,14 +51,10 @@ export function EntradaForm({ onDone, produtoId }: { onDone: () => void; produto
       onClose={onDone}
       footer={<Button className="w-full h-12 text-base" disabled={registrar.isPending} onClick={submit}>{registrar.isPending ? "Salvando…" : "Salvar Entrada"}</Button>}
     >
-      <Field label="Produto">
-        <Select value={f.produto_id} onValueChange={(v) => setF({ ...f, produto_id: v })}>
-          <SelectTrigger className="h-12 w-full"><SelectValue placeholder="Escolha um produto" /></SelectTrigger>
-          <SelectContent>
-            {produtos.map((p) => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}
-          </SelectContent>
-        </Select>
-      </Field>
+      <div>
+        <span className="text-sm font-medium block mb-1.5">Produto</span>
+        <ProdutoSelect produtos={produtos} value={f.produto_id} onChange={(v) => setF({ ...f, produto_id: v })} />
+      </div>
       <Field label="Quantidade adicionada">
         <Input className="h-12" inputMode="numeric" value={f.quantidade} onChange={(e) => setF({ ...f, quantidade: e.target.value })} />
       </Field>

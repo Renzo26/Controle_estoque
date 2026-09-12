@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Home, Package, ArrowDownToLine, ArrowUpFromLine, BarChart3, History, Settings, Plus, Menu } from "lucide-react";
+import { Home, Package, ArrowDownToLine, ArrowUpFromLine, BarChart3, History, Settings, Plus, Menu, Plane } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -23,6 +23,7 @@ const desktopNav = [
   { to: "/entrada", label: "Entrada de Estoque", icon: ArrowDownToLine },
   { to: "/saida", label: "Saída de Estoque", icon: ArrowUpFromLine },
   { to: "/movimentacoes", label: "Movimentações", icon: History },
+  { to: "/viagens", label: "Custos de Viagem", icon: Plane },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;

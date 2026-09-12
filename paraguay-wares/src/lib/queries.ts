@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, type ProdutoCreate, type ProdutoUpdate } from "./api";
+import { api, type CustoViagemCreate, type ProdutoCreate, type ProdutoUpdate } from "./api";
 import type { TipoMovimentacao } from "./types";
 
 export const qk = {
@@ -131,6 +131,36 @@ export function useLucroPeriodo(params?: { de?: string; ate?: string; produto_id
   return useQuery({
     queryKey: ["lucro-periodo", params],
     queryFn: () => api.lucroPeriodo(params),
+  });
+}
+
+// ---------- Custos de viagem ----------
+
+export function useCustosViagem() {
+  return useQuery({
+    queryKey: ["custos-viagem"],
+    queryFn: () => api.listarCustosViagem(),
+  });
+}
+
+function invalidateCustos(qc: ReturnType<typeof useQueryClient>) {
+  qc.invalidateQueries({ queryKey: ["custos-viagem"] });
+  qc.invalidateQueries({ queryKey: ["lucro-periodo"] });
+}
+
+export function useCriarCustoViagem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: CustoViagemCreate) => api.criarCustoViagem(body),
+    onSuccess: () => invalidateCustos(qc),
+  });
+}
+
+export function useRemoverCustoViagem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.removerCustoViagem(id),
+    onSuccess: () => invalidateCustos(qc),
   });
 }
 

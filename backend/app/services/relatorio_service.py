@@ -6,6 +6,7 @@ from typing import Optional
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.custo_viagem import CustoViagem
 from app.models.movimentacao import Movimentacao, TipoMovimentacao
 from app.models.produto import Produto
 from app.schemas.relatorio import (
@@ -179,6 +180,23 @@ class RelatorioService:
 
         investido_total = sum((i.investido for i in itens), Decimal("0"))
         vendas_total = sum((i.vendas for i in itens), Decimal("0"))
+
+        # Custos de viagem não são por produto: soma todos os do período
+        custos_viagem_total = (
+            await db.scalar(
+                select(
+                    func.coalesce(
+                        func.sum(
+                            CustoViagem.combustivel_passagem
+                            + CustoViagem.hospedagem
+                            + CustoViagem.alimentacao
+                            + CustoViagem.pedagio
+                        ),
+                        0,
+                    )
+                ).where(CustoViagem.data >= de.date(), CustoViagem.data <= ate.date())
+            )
+        ) or Decimal("0")
         return LucroPeriodoOut(
             de=de,
             ate=ate,
@@ -186,6 +204,7 @@ class RelatorioService:
             investido_total=investido_total,
             vendas_total=vendas_total,
             lucro_total=vendas_total - investido_total,
+            custos_viagem_total=Decimal(custos_viagem_total),
             itens=itens,
         )
 

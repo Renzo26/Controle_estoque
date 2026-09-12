@@ -6,6 +6,7 @@ import type {
   VendasPeriodo,
   Categoria,
   LucroPeriodo,
+  CustoViagem,
 } from "./types";
 
 const BASE_URL =
@@ -69,6 +70,24 @@ const normalizeProduto = (p: any): Produto => ({
   custo_medio: num(p.custo_medio),
   ultimo_valor_pago: num(p.ultimo_valor_pago),
 });
+
+const normalizeCusto = (c: any): CustoViagem => ({
+  ...c,
+  combustivel_passagem: num(c.combustivel_passagem),
+  hospedagem: num(c.hospedagem),
+  alimentacao: num(c.alimentacao),
+  pedagio: num(c.pedagio),
+  total: num(c.total),
+});
+
+export interface CustoViagemCreate {
+  data: string;
+  descricao?: string;
+  combustivel_passagem: number;
+  hospedagem: number;
+  alimentacao: number;
+  pedagio: number;
+}
 
 const normalizeMov = (m: any): Movimentacao => ({
   ...m,
@@ -180,6 +199,7 @@ export const api = {
       investido_total: num(d.investido_total),
       vendas_total: num(d.vendas_total),
       lucro_total: num(d.lucro_total),
+      custos_viagem_total: num(d.custos_viagem_total),
       itens: (d.itens ?? []).map((i: any) => ({
         mes: i.mes,
         investido: num(i.investido),
@@ -188,6 +208,15 @@ export const api = {
       })),
     };
   },
+
+  // Custos de viagem
+  listarCustosViagem: async (params?: { de?: string; ate?: string }) => {
+    const list = await request<any[]>("/custos-viagem", { query: params });
+    return list.map(normalizeCusto);
+  },
+  criarCustoViagem: async (body: CustoViagemCreate) =>
+    normalizeCusto(await request<any>("/custos-viagem", { method: "POST", body: JSON.stringify(body) })),
+  removerCustoViagem: (id: string) => request<void>(`/custos-viagem/${id}`, { method: "DELETE" }),
 
   // Categorias
   listarCategorias: () => request<Categoria[]>("/categorias"),
