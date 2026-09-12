@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormShell, Field } from "./FormShell";
+import { parseDecimal } from "@/lib/utils";
 
 export function EntradaForm({ onDone, produtoId }: { onDone: () => void; produtoId?: string }) {
   const { data: produtos = [] } = useProdutos();
@@ -22,7 +23,7 @@ export function EntradaForm({ onDone, produtoId }: { onDone: () => void; produto
   const submit = async () => {
     if (!f.produto_id) return toast.error("Selecione um produto.");
     const q = Number(f.quantidade);
-    const v = Number(f.valor_unitario);
+    const v = parseDecimal(f.valor_unitario);
     if (!q || q <= 0) return toast.error("Quantidade inválida.");
     if (!v || v <= 0) return toast.error("Informe o valor pago.");
     try {
@@ -31,7 +32,7 @@ export function EntradaForm({ onDone, produtoId }: { onDone: () => void; produto
         tipo: "entrada",
         quantidade: q,
         valor_unitario: v,
-        cotacao_dolar: f.cotacao_dolar ? Number(f.cotacao_dolar) : undefined,
+        cotacao_dolar: parseDecimal(f.cotacao_dolar) || undefined,
         data_movimentacao: new Date(f.data).toISOString(),
         fornecedor: f.fornecedor || undefined,
         observacoes: f.observacoes || undefined,

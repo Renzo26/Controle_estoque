@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormShell, Field } from "./FormShell";
+import { parseDecimal } from "@/lib/utils";
 
 const tipos: { value: TipoMovimentacao; label: string }[] = [
   { value: "venda", label: "Venda" },
@@ -40,7 +41,7 @@ export function SaidaForm({ onDone, produtoId }: { onDone: () => void; produtoId
         produto_id: f.produto_id,
         tipo: f.tipo,
         quantidade: qtd,
-        valor_unitario: f.valor_unitario ? Number(f.valor_unitario) : undefined,
+        valor_unitario: parseDecimal(f.valor_unitario) || undefined,
         data_movimentacao: new Date(f.data).toISOString(),
         observacoes: f.observacoes || undefined,
       });

@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FormShell, Field } from "./FormShell";
 import { CategoriaSelect } from "./CategoriaSelect";
+import { parseDecimal } from "@/lib/utils";
 
 export function ProductForm({ onDone }: { onDone: () => void }) {
   const criar = useCriarProduto();
@@ -30,8 +31,8 @@ export function ProductForm({ onDone }: { onDone: () => void }) {
         sku: f.sku || undefined,
         estoque_minimo: Number(f.estoque_minimo) || 0,
         quantidade_inicial: Number(f.quantidade_inicial) || 0,
-        valor_unitario_inicial: Number(f.valor_unitario) || 0,
-        cotacao_dolar_inicial: f.cotacao_dolar ? Number(f.cotacao_dolar) : undefined,
+        valor_unitario_inicial: parseDecimal(f.valor_unitario) || 0,
+        cotacao_dolar_inicial: parseDecimal(f.cotacao_dolar) || undefined,
         fornecedor_inicial: f.fornecedor || undefined,
       });
       toast.success("Produto cadastrado com sucesso!");
@@ -71,7 +72,7 @@ export function ProductForm({ onDone }: { onDone: () => void }) {
           <Input className="h-12" inputMode="decimal" value={f.valor_unitario} onChange={upd("valor_unitario")} />
         </Field>
         <Field label="Cotação do dólar" hint="Opcional">
-          <Input className="h-12" inputMode="decimal" value={f.cotacao_dolar} onChange={upd("cotacao_dolar")} placeholder="Ex: 5.20" />
+          <Input className="h-12" inputMode="decimal" value={f.cotacao_dolar} onChange={upd("cotacao_dolar")} placeholder="Ex: 5,20" />
         </Field>
       </div>
       <Field label="Fornecedor" hint="Opcional">
