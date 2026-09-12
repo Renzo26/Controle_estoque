@@ -37,6 +37,9 @@ async def lucro(
     de: Optional[datetime] = None,
     ate: Optional[datetime] = None,
     produto_id: Optional[uuid.UUID] = None,
+    categoria: Optional[str] = None,
     db: AsyncSession = Depends(get_session),
 ):
-    return await relatorio_service.lucro_periodo(db, de=de, ate=ate, produto_id=produto_id)
+    return await relatorio_service.lucro_periodo(
+        db, de=de, ate=ate, produto_id=produto_id, categoria=categoria
+    )

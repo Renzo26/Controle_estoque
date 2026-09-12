@@ -1,9 +1,7 @@
-export type Categoria = string;
-
 export interface Produto {
   id: string;
   nome: string;
-  categoria: Categoria;
+  categoria: string;
   descricao?: string | null;
   sku?: string | null;
   quantidade_atual: number;
@@ -72,6 +70,7 @@ export interface LucroPeriodo {
   de: string | null;
   ate: string | null;
   produto_id: string | null;
+  categoria: string | null;
   investido_total: number;
   vendas_total: number;
   lucro_total: number;

@@ -190,12 +190,13 @@ export const api = {
   },
 
   // Relatório de lucro (investido x vendas)
-  lucroPeriodo: async (params?: { de?: string; ate?: string; produto_id?: string }): Promise<LucroPeriodo> => {
+  lucroPeriodo: async (params?: { de?: string; ate?: string; produto_id?: string; categoria?: string }): Promise<LucroPeriodo> => {
     const d = await request<any>("/relatorios/lucro", { query: params });
     return {
       de: d.de ?? null,
       ate: d.ate ?? null,
       produto_id: d.produto_id ?? null,
+      categoria: d.categoria ?? null,
       investido_total: num(d.investido_total),
       vendas_total: num(d.vendas_total),
       lucro_total: num(d.lucro_total),

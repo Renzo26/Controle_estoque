@@ -127,7 +127,7 @@ export function useVendasPeriodo(de?: string, ate?: string) {
   });
 }
 
-export function useLucroPeriodo(params?: { de?: string; ate?: string; produto_id?: string }) {
+export function useLucroPeriodo(params?: { de?: string; ate?: string; produto_id?: string; categoria?: string }) {
   return useQuery({
     queryKey: ["lucro-periodo", params],
     queryFn: () => api.lucroPeriodo(params),

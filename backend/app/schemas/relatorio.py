@@ -40,6 +40,7 @@ class LucroPeriodoOut(BaseModel):
     de: Optional[datetime] = None
     ate: Optional[datetime] = None
     produto_id: Optional[uuid.UUID] = None
+    categoria: Optional[str] = None
     investido_total: Decimal
     vendas_total: Decimal
     lucro_total: Decimal

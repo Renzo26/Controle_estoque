@@ -122,6 +122,7 @@ class RelatorioService:
         de: Optional[datetime] = None,
         ate: Optional[datetime] = None,
         produto_id: Optional[uuid.UUID] = None,
+        categoria: Optional[str] = None,
     ) -> LucroPeriodoOut:
         if not ate:
             ate = datetime.now(timezone.utc)
@@ -167,6 +168,10 @@ class RelatorioService:
         )
         if produto_id:
             stmt = stmt.where(Movimentacao.produto_id == produto_id)
+        if categoria:
+            stmt = stmt.join(Produto, Produto.id == Movimentacao.produto_id).where(
+                Produto.categoria == categoria
+            )
 
         rows = (await db.execute(stmt)).all()
 
@@ -201,6 +206,7 @@ class RelatorioService:
             de=de,
             ate=ate,
             produto_id=produto_id,
+            categoria=categoria,
             investido_total=investido_total,
             vendas_total=vendas_total,
             lucro_total=vendas_total - investido_total,

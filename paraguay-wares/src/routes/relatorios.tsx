@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { formatBRL } from "@/lib/store";
 import { valorTotalEstoque } from "@/lib/types";
-import { useDashboard, useEstoqueBaixo, useProdutos, useVendasPeriodo, useLucroPeriodo } from "@/lib/queries";
+import { useCategorias, useDashboard, useEstoqueBaixo, useProdutos, useVendasPeriodo, useLucroPeriodo } from "@/lib/queries";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -89,15 +89,28 @@ function formatMes(iso: string) {
 }
 
 function LucroSection() {
-  const { data: produtos = [] } = useProdutos();
+  const { data: todosProdutos = [] } = useProdutos();
+  const { data: categorias = [] } = useCategorias();
   const now = new Date();
   const [inicio, setInicio] = useState(ym(new Date(now.getFullYear(), now.getMonth() - 5, 1)));
   const [fim, setFim] = useState(ym(now));
+  const [categoria, setCategoria] = useState<string | undefined>(undefined);
   const [produtoId, setProdutoId] = useState<string | undefined>(undefined);
+
+  // Com categoria escolhida, o seletor de produto mostra só os produtos dela
+  const produtos = categoria ? todosProdutos.filter((p) => p.categoria === categoria) : todosProdutos;
+
+  const trocarCategoria = (v: string) => {
+    const nova = v === "all" ? undefined : v;
+    setCategoria(nova);
+    if (nova && produtoId && !todosProdutos.some((p) => p.id === produtoId && p.categoria === nova)) {
+      setProdutoId(undefined);
+    }
+  };
 
   const valido = inicio <= fim;
   const { de, ate } = monthRange(inicio, fim);
-  const { data, isLoading } = useLucroPeriodo(valido ? { de, ate, produto_id: produtoId } : undefined);
+  const { data, isLoading } = useLucroPeriodo(valido ? { de, ate, produto_id: produtoId, categoria } : undefined);
 
   const lucroTotal = data?.lucro_total ?? 0;
 
@@ -108,13 +121,23 @@ function LucroSection() {
         Lucro = Vendas − Investido (compras/entradas) no período selecionado. Custos de viagem mostram o total gasto com viagens no período.
       </p>
 
-      <div className="grid sm:grid-cols-3 gap-2 mb-3">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
+        <label className="block">
+          <span className="text-xs text-muted-foreground block mb-1">Categoria</span>
+          <Select value={categoria ?? "all"} onValueChange={trocarCategoria}>
+            <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as categorias</SelectItem>
+              {categorias.map((c) => <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </label>
         <label className="block">
           <span className="text-xs text-muted-foreground block mb-1">Produto</span>
           <Select value={produtoId ?? "all"} onValueChange={(v) => setProdutoId(v === "all" ? undefined : v)}>
             <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos os produtos</SelectItem>
+              <SelectItem value="all">{categoria ? `Todos de ${categoria}` : "Todos os produtos"}</SelectItem>
               {produtos.map((p) => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}
             </SelectContent>
           </Select>
