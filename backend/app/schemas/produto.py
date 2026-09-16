@@ -12,6 +12,8 @@ class ProdutoBase(BaseModel):
     sku: Optional[str] = Field(default=None, max_length=50)
     descricao: Optional[str] = None
     estoque_minimo: int = Field(default=0, ge=0)
+    preco_venda: Optional[Decimal] = Field(default=None, ge=0)
+    exibir_catalogo: bool = True
 
 
 class ProdutoCreate(ProdutoBase):
@@ -28,6 +30,8 @@ class ProdutoUpdate(BaseModel):
     sku: Optional[str] = Field(default=None, max_length=50)
     descricao: Optional[str] = None
     estoque_minimo: Optional[int] = Field(default=None, ge=0)
+    preco_venda: Optional[Decimal] = Field(default=None, ge=0)
+    exibir_catalogo: Optional[bool] = None
 
 
 class ProdutoOut(ProdutoBase):
@@ -44,3 +48,16 @@ class ProdutoOut(ProdutoBase):
     @property
     def valor_total_estoque(self) -> Decimal:
         return self.custo_medio * self.quantidade_atual
+
+
+class CatalogoItemOut(BaseModel):
+    """Produto no catálogo público — sem custo nem quantidade."""
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    nome: str
+    categoria: str
+    descricao: Optional[str] = None
+    foto_url: Optional[str] = None
+    preco_venda: Optional[Decimal] = None
+    disponivel: bool

@@ -127,3 +127,22 @@
     letter-spacing: -0.02em;
   }
 }
+
+/* ---------- Catálogo público ---------- */
+.catalogo {
+  --c-bg: #f6f1e9;
+  --c-surface: #fffcf7;
+  --c-ink: #2a211c;
+  --c-soft: #6f625a;
+  --c-line: #e6dccd;
+  --c-accent: #8a5a2b;
+  --c-accent-soft: #efe3d3;
+  --c-wa: #1d7f55;
+  background: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+}
+.catalogo .font-serif {
+  font-family: "Fraunces", Georgia, "Times New Roman", serif;
+  font-optical-sizing: auto;
+}

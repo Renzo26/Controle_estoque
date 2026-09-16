@@ -7,6 +7,7 @@ import type {
   Categoria,
   LucroPeriodo,
   CustoViagem,
+  CatalogoItem,
 } from "./types";
 
 const BASE_URL =
@@ -69,6 +70,8 @@ const normalizeProduto = (p: any): Produto => ({
   estoque_minimo: Number(p.estoque_minimo ?? 0),
   custo_medio: num(p.custo_medio),
   ultimo_valor_pago: num(p.ultimo_valor_pago),
+  preco_venda: p.preco_venda != null ? num(p.preco_venda) : null,
+  exibir_catalogo: p.exibir_catalogo ?? true,
 });
 
 const normalizeCusto = (c: any): CustoViagem => ({
@@ -116,11 +119,19 @@ export interface ProdutoUpdate {
   nome?: string;
   categoria?: string;
   sku?: string;
-  descricao?: string;
+  descricao?: string | null;
   estoque_minimo?: number;
+  preco_venda?: number | null;
+  exibir_catalogo?: boolean;
 }
 
 export const api = {
+  // Catálogo público
+  catalogo: async (): Promise<CatalogoItem[]> => {
+    const list = await request<any[]>("/catalogo");
+    return list.map((c) => ({ ...c, preco_venda: c.preco_venda != null ? num(c.preco_venda) : null }));
+  },
+
   // Produtos
   listarProdutos: async (filters?: { q?: string; categoria?: string; estoque_baixo?: boolean }) => {
     const list = await request<any[]>("/produtos", { query: filters });

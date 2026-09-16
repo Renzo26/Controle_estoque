@@ -57,6 +57,8 @@ class ProdutoService:
             sku=body.sku,
             descricao=body.descricao,
             estoque_minimo=body.estoque_minimo,
+            preco_venda=body.preco_venda,
+            exibir_catalogo=body.exibir_catalogo,
             quantidade_atual=qtd,
             # Guarda o valor pago mesmo sem quantidade inicial; a 1ª entrada
             # recalcula o custo médio (qtd 0 não pesa na média).

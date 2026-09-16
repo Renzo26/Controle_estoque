@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 
@@ -56,9 +57,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // O catálogo é público: sem menu, barra inferior nem ações do painel
+  const publico = pathname.startsWith("/catalogo");
   return (
     <QueryClientProvider client={queryClient}>
-      <AppLayout><Outlet /></AppLayout>
+      {publico ? <Outlet /> : <AppLayout><Outlet /></AppLayout>}
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );

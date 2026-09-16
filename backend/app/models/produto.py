@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from sqlalchemy import DateTime, Index, Numeric, String, Text, func
+from sqlalchemy import Boolean, DateTime, Index, Numeric, String, Text, func, true
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -32,6 +32,12 @@ class Produto(Base):
     )
 
     foto_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # Catálogo público
+    preco_venda: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2), nullable=True)
+    exibir_catalogo: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=true()
+    )
 
     criado_em: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

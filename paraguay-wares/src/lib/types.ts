@@ -9,8 +9,21 @@ export interface Produto {
   custo_medio: number;
   ultimo_valor_pago: number;
   foto_url?: string | null;
+  preco_venda: number | null;
+  exibir_catalogo: boolean;
   criado_em: string;
   atualizado_em: string;
+}
+
+/** Produto como aparece no catálogo público (sem custo nem quantidade). */
+export interface CatalogoItem {
+  id: string;
+  nome: string;
+  categoria: string;
+  descricao?: string | null;
+  foto_url?: string | null;
+  preco_venda: number | null;
+  disponivel: boolean;
 }
 
 export type TipoMovimentacao = "entrada" | "venda" | "perda" | "uso_pessoal" | "ajuste";

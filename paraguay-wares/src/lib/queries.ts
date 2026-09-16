@@ -35,6 +35,8 @@ function invalidateAll(qc: ReturnType<typeof useQueryClient>) {
   qc.invalidateQueries({ queryKey: ["dashboard"] });
   qc.invalidateQueries({ queryKey: ["estoque-baixo"] });
   qc.invalidateQueries({ queryKey: ["vendas-periodo"] });
+  qc.invalidateQueries({ queryKey: ["lucro-periodo"] });
+  qc.invalidateQueries({ queryKey: ["catalogo"] });
 }
 
 export function useCriarProduto() {
@@ -164,12 +166,21 @@ export function useRemoverCustoViagem() {
   });
 }
 
+// ---------- Catálogo público ----------
+
+export function useCatalogo() {
+  return useQuery({ queryKey: ["catalogo"], queryFn: api.catalogo });
+}
+
 // ---------- Upload ----------
 
 export function useUploadFoto() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, file }: { id: string; file: File }) => api.uploadFotoProduto(id, file),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["produtos"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["produtos"] });
+      qc.invalidateQueries({ queryKey: ["catalogo"] });
+    },
   });
 }
